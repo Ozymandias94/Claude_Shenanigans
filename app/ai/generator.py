@@ -49,10 +49,17 @@ def generate_daily_reading(
 ) -> str:
     """Call Claude to generate a daily reading for the given system and chart.
 
-    Prompt structure:
+    Standard prompt structure (western / vedic / chinese):
       system prompt  = BASE_SYSTEM_PROMPT + module.SYSTEM_CONFIG["system_prompt"]
       user prompt    = date + chart text + SYSTEM_CONFIG["reading_focus"]
                        + SYSTEM_CONFIG["presentation"]
+
+    Full-engine prompt structure (egyptian):
+      When SYSTEM_CONFIG contains "full_system_prompt" (a file path), the file
+      is loaded and used as the entire system prompt, replacing BASE_SYSTEM_PROMPT
+      and the system_prompt/reading_focus/presentation pattern. The user message
+      is a structured reading request matching the engine's Section 12.4 format,
+      populated from whatever chart data is currently available.
 
     To tune a system's reading behavior, edit SYSTEM_CONFIG in the relevant
     app/systems/*.py module — no changes needed here.
@@ -61,23 +68,41 @@ def generate_daily_reading(
 
     module = _SYSTEM_MODULES[system]
     config = module.SYSTEM_CONFIG
+    max_tokens = config.get("max_tokens", MAX_TOKENS)
 
-    composed_system_prompt = BASE_SYSTEM_PROMPT + "\n\n" + config["system_prompt"]
-    chart_text = module.format_for_prompt(chart_data)
-    system_name = _SYSTEM_NAMES[system]
+    engine_path = config.get("full_system_prompt")
+    if engine_path:
+        with open(engine_path, "r", encoding="utf-8") as fh:
+            system_prompt = fh.read()
 
-    user_prompt = (
-        f"Today is {today.strftime('%A, %B %d, %Y')}.\n\n"
-        f"Generate a {system_name} daily horoscope reading for {person_name}.\n\n"
-        f"Their natal chart:\n{chart_text}\n\n"
-        f"Reading focus:\n{config['reading_focus']}\n\n"
-        f"Presentation:\n{config['presentation']}"
-    )
+        chart_text = module.format_for_prompt(chart_data)
+        user_prompt = (
+            f"READING_TYPE: DAILY\n"
+            f"PERSON_NAME: {person_name}\n"
+            f"TODAY_DATE: {today.isoformat()}\n\n"
+            f"NATAL_CHART_SUMMARY:\n{chart_text}\n\n"
+            f"NOTE: Full ephemeris decan calculations are not yet available. "
+            f"Generate a DAILY reading using the natal chart summary above. "
+            f"Apply the voice and tone rules from Section 2, draw on the deity "
+            f"library from Section 3, reference the active season from Section 4, "
+            f"and follow the daily reading structure from Section 8.4."
+        )
+    else:
+        system_prompt = BASE_SYSTEM_PROMPT + "\n\n" + config["system_prompt"]
+        chart_text = module.format_for_prompt(chart_data)
+        system_name = _SYSTEM_NAMES[system]
+        user_prompt = (
+            f"Today is {today.strftime('%A, %B %d, %Y')}.\n\n"
+            f"Generate a {system_name} daily horoscope reading for {person_name}.\n\n"
+            f"Their natal chart:\n{chart_text}\n\n"
+            f"Reading focus:\n{config['reading_focus']}\n\n"
+            f"Presentation:\n{config['presentation']}"
+        )
 
     response = client.messages.create(
         model=MODEL,
-        max_tokens=MAX_TOKENS,
-        system=composed_system_prompt,
+        max_tokens=max_tokens,
+        system=system_prompt,
         messages=[{"role": "user", "content": user_prompt}],
     )
     return response.content[0].text
