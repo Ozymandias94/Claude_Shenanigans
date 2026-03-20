@@ -7,9 +7,9 @@ load_dotenv()
 from app.routers import horoscope
 
 app = FastAPI(
-    title="AI Horoscope API",
-    description="Personalized daily horoscope readings powered by Claude across Western, Vedic, Chinese, and Egyptian traditions.",
-    version="1.0.0",
+    title="Khemet — Egyptian Astrology API",
+    description="Personalized astrological readings grounded in ancient Egyptian cosmology, powered by Claude.",
+    version="2.0.0",
 )
 
 app.add_middleware(

@@ -1,4 +1,9 @@
-"""Claude-powered daily horoscope reading generator."""
+"""Claude-powered Egyptian astrology reading generator.
+
+Phase 2 note: Once app/systems/decan_library.py and app/prompt_builder.py are
+in place, _build_user_prompt() will be replaced by prompt_builder functions for
+token-optimised decan injection (75-80% token reduction vs. the full engine file).
+"""
 
 from __future__ import annotations
 
@@ -7,102 +12,117 @@ from datetime import date
 
 import anthropic
 
-from app.systems import western, vedic, chinese, egyptian
+from app.systems.egyptian import SYSTEM_CONFIG
 
-MODEL = "claude-sonnet-4-6"
-MAX_TOKENS = 512
+DAILY_MODEL = "claude-sonnet-4-6"
+PUSH_MODEL = "claude-haiku-4-5-20251001"
 
-# Universal instructions that apply to every system.
-# Edit this to change behavior shared across all four traditions.
-BASE_SYSTEM_PROMPT = (
-    "You are a masterful astrologer fluent in multiple ancient and modern traditions. "
-    "Generate a personalized daily horoscope reading for the user based on their natal "
-    "chart data and today's date. The reading must be:\n"
-    "- Personalized: reference their specific signs, planets, or pillars\n"
-    "- Forward-looking: speak to what today holds for them\n"
-    "- Written in second person (you / your)\n"
-    "- Thoughtful, poetic, and concrete in its guidance\n"
-    "Do not include disclaimers about astrology being for entertainment."
-)
-
-# Maps system key → module. Each module exposes SYSTEM_CONFIG and format_for_prompt().
-_SYSTEM_MODULES = {
-    "western": western,
-    "vedic": vedic,
-    "chinese": chinese,
-    "egyptian": egyptian,
-}
-
-_SYSTEM_NAMES = {
-    "western": "Western Tropical Astrology",
-    "vedic": "Vedic Jyotish Astrology",
-    "chinese": "Chinese BaZi (Four Pillars of Destiny)",
-    "egyptian": "Ancient Egyptian Astrology",
-}
+_MAX_TOKENS: dict[str, int] = {"push": 50, "daily": 400, "natal": 900}
 
 
-def generate_daily_reading(
-    system: str,
-    chart_data: dict,
+def generate_reading(
+    reading_type: str,
+    natal_chart: dict,
+    transits: dict,
     person_name: str,
+    birth_date: str,
+    birth_time: str,
+    birth_location: str,
     today: date,
 ) -> str:
-    """Call Claude to generate a daily reading for the given system and chart.
+    """Call Claude to generate an Egyptian astrology reading.
 
-    Standard prompt structure (western / vedic / chinese):
-      system prompt  = BASE_SYSTEM_PROMPT + module.SYSTEM_CONFIG["system_prompt"]
-      user prompt    = date + chart text + SYSTEM_CONFIG["reading_focus"]
-                       + SYSTEM_CONFIG["presentation"]
+    reading_type must be one of: "daily", "natal", "push"
 
-    Full-engine prompt structure (egyptian):
-      When SYSTEM_CONFIG contains "full_system_prompt" (a file path), the file
-      is loaded and used as the entire system prompt, replacing BASE_SYSTEM_PROMPT
-      and the system_prompt/reading_focus/presentation pattern. The user message
-      is a structured reading request matching the engine's Section 12.4 format,
-      populated from whatever chart data is currently available.
-
-    To tune a system's reading behavior, edit SYSTEM_CONFIG in the relevant
-    app/systems/*.py module — no changes needed here.
+    The full engine MD is used as the system prompt for now. Phase 2 will
+    replace this with app/prompt_builder.py for a slimmed core prompt + dynamic
+    decan injection, dropping token usage by ~75-80%.
     """
     client = anthropic.Anthropic(api_key=os.environ["ANTHROPIC_API_KEY"])
 
-    module = _SYSTEM_MODULES[system]
-    config = module.SYSTEM_CONFIG
-    max_tokens = config.get("max_tokens", MAX_TOKENS)
+    engine_path = SYSTEM_CONFIG["full_system_prompt"]
+    with open(engine_path, "r", encoding="utf-8") as fh:
+        system_prompt = fh.read()
 
-    engine_path = config.get("full_system_prompt")
-    if engine_path:
-        with open(engine_path, "r", encoding="utf-8") as fh:
-            system_prompt = fh.read()
+    model = PUSH_MODEL if reading_type == "push" else DAILY_MODEL
+    max_tokens = _MAX_TOKENS.get(reading_type, 400)
 
-        chart_text = module.format_for_prompt(chart_data)
-        user_prompt = (
-            f"READING_TYPE: DAILY\n"
-            f"PERSON_NAME: {person_name}\n"
-            f"TODAY_DATE: {today.isoformat()}\n\n"
-            f"NATAL_CHART_SUMMARY:\n{chart_text}\n\n"
-            f"NOTE: Full ephemeris decan calculations are not yet available. "
-            f"Generate a DAILY reading using the natal chart summary above. "
-            f"Apply the voice and tone rules from Section 2, draw on the deity "
-            f"library from Section 3, reference the active season from Section 4, "
-            f"and follow the daily reading structure from Section 8.4."
-        )
-    else:
-        system_prompt = BASE_SYSTEM_PROMPT + "\n\n" + config["system_prompt"]
-        chart_text = module.format_for_prompt(chart_data)
-        system_name = _SYSTEM_NAMES[system]
-        user_prompt = (
-            f"Today is {today.strftime('%A, %B %d, %Y')}.\n\n"
-            f"Generate a {system_name} daily horoscope reading for {person_name}.\n\n"
-            f"Their natal chart:\n{chart_text}\n\n"
-            f"Reading focus:\n{config['reading_focus']}\n\n"
-            f"Presentation:\n{config['presentation']}"
-        )
+    user_prompt = _build_user_prompt(
+        reading_type, natal_chart, transits,
+        person_name, birth_date, birth_time,
+        birth_location, today,
+    )
 
     response = client.messages.create(
-        model=MODEL,
+        model=model,
         max_tokens=max_tokens,
         system=system_prompt,
         messages=[{"role": "user", "content": user_prompt}],
     )
     return response.content[0].text
+
+
+def _build_user_prompt(
+    reading_type: str,
+    natal_chart: dict,
+    transits: dict,
+    person_name: str,
+    birth_date: str,
+    birth_time: str,
+    birth_location: str,
+    today: date,
+) -> str:
+    """Assemble a structured reading request per engine Section 12.4."""
+    rt = reading_type.upper()
+
+    asc_decan = natal_chart.get("asc_decan", "unknown")
+    sun_decan = natal_chart.get("sun_decan", "unknown")
+    moon_decan = natal_chart.get("moon_decan", "unknown")
+    season = natal_chart.get("season", "unknown")
+    lot_f_h = natal_chart.get("lot_fortune_house")
+    lot_d_h = natal_chart.get("lot_daimon_house")
+
+    retrogrades = ", ".join(transits.get("active_retrogrades") or []) or "none"
+    stations = transits.get("today_stations") or []
+    eclipse = transits.get("today_eclipse", "NONE")
+    sun_decan_t = transits.get("today_sun_decan", "unknown")
+    hem_event = transits.get("hemerological_event")
+    khoiak = transits.get("khoiak_active", False)
+
+    lines = [
+        f"READING_TYPE: {rt}",
+        f"PERSON_NAME: {person_name}",
+        f"TODAY_DATE: {today.isoformat()}",
+        f"BIRTH_DATE: {birth_date}",
+        f"BIRTH_TIME: {birth_time or 'unknown'}",
+        f"BIRTH_LOCATION: {birth_location}",
+        "",
+        "NATAL_CHART_SUMMARY:",
+        f"  Egyptian Season: {season}",
+        f"  Ascendant Decan: {asc_decan}",
+        f"  Sun Decan: {sun_decan}",
+        f"  Moon Decan: {moon_decan}",
+    ]
+    if lot_f_h:
+        lines.append(f"  Lot of Fortune: House {lot_f_h}")
+    if lot_d_h:
+        lines.append(f"  Lot of Daimon: House {lot_d_h}")
+
+    lines += [
+        "",
+        "TODAY_TRANSIT_CONTEXT:",
+        f"  Transiting Sun Decan: {sun_decan_t}",
+        f"  Active Retrogrades: {retrogrades}",
+        f"  Eclipse Today: {eclipse}",
+    ]
+    for s in stations:
+        lines.append(f"  Station: {s['planet']} {s['type']}")
+    if hem_event:
+        lines.append(
+            f"  Hemerological Event: {hem_event.get('name', '')} "
+            f"({hem_event.get('charge', '')})"
+        )
+    if khoiak:
+        lines.append("  Khoiak Mysteries: ACTIVE")
+
+    return "\n".join(lines)

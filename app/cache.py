@@ -8,22 +8,23 @@ from __future__ import annotations
 
 from datetime import date
 
-_store: dict[tuple, str] = {}
+_store: dict[tuple, object] = {}
 
 
 def _today() -> str:
     return date.today().isoformat()
 
 
-def make_key(system: str, name: str, birth_date: str, birth_time: str) -> tuple:
-    return (_today(), system, name, birth_date, birth_time)
+def make_key(*args) -> tuple:
+    """Build a cache key from any number of string components plus today's date."""
+    return (_today(), *args)
 
 
-def get(key: tuple) -> str | None:
+def get(key: tuple) -> object | None:
     return _store.get(key)
 
 
-def set(key: tuple, value: str) -> None:
+def set(key: tuple, value: object) -> None:
     today = _today()
     stale = [k for k in _store if k[0] != today]
     for k in stale:

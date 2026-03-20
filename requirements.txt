@@ -1,13 +1,7 @@
 fastapi>=0.115.0
 uvicorn[standard]>=0.29.0
 anthropic>=0.40.0
-kerykeion>=5.7.0
 pyswisseph>=2.10.3.1
 pytz>=2024.2
-requests-cache>=1.2.1
-simple-ascii-tables>=1.0.0
 python-dotenv>=1.0.0
 pydantic>=2.0.0
-# NOTE: kerykeion also requires `scour`. On Debian/Ubuntu install via:
-#   apt-get install python3-scour
-# or build from source if pip wheel fails.
