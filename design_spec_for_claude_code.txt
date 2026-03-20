@@ -1,0 +1,556 @@
+EGYPTIAN ASTROLOGY APP — DESIGN & COLOR SPECIFICATION FOR CLAUDE CODE
+======================================================================
+
+This file governs all visual and design decisions for the app. Read it
+before writing any UI code, choosing any color value, or making any
+layout decision. Every color in this spec maps to a real historical
+Egyptian pigment. That is not trivia — it is the reason the palette
+feels coherent and premium rather than themed or costumed.
+
+Reference files:
+- egyptian_astrology_engine.md (v1.3) — reading engine and content
+- feature_plan_for_claude_code.txt — full feature list by version
+- This file — all design decisions
+
+
+==============================================================================
+THE ONE RULE THAT GOVERNS ALL COLOR DECISIONS
+==============================================================================
+
+Gold is never decorative. In Egyptian art, gold indicated the flesh of
+the gods — divinity made visible. In this app, gold text and gold accents
+mean something carries divine authority: an active decan name, a natal
+placement, a hemerological charge, the name of a presiding deity.
+Everything else — supporting text, dates, metadata, secondary labels —
+uses sand, papyrus, or ochre tones.
+
+If you are deciding whether to use gold on something, ask: is this
+decreed? Is this the divine record speaking? If yes, gold. If it is
+context, support, or navigation, it is not gold.
+
+This hierarchy is the mythology made visible. Hold it consistently.
+
+
+==============================================================================
+THE FOUR COLOR SCHEMES
+==============================================================================
+
+The four schemes are not competing options. They are a single coherent
+system where each scheme serves a specific context. Default dark for
+readings, light for editorial content, high-contrast for sacred caution
+days, seasonal tints as overlays.
+
+
+------------------------------------------------------------------------------
+SCHEME 1: DUAT NIGHT (default — dark mode)
+------------------------------------------------------------------------------
+
+The primary scheme. Used for: main reading screens, daily feed, sky map,
+Oracle Chamber, Ka Reading, Circle of Ka, all core app navigation.
+Most users will experience this scheme most of the time.
+
+Inspired by: the interior of a royal tomb — lapis lazuli walls, gold
+leaf hieroglyphs, faience amulets catching lamplight. Rich, contained,
+alive with precise detail. Not oppressive dark — deep and deliberate.
+
+Colors:
+
+  VOID (deepest background)        #0D0E1A
+  LAPIS (surface / card background) #141828
+  LAPIS RAISED (elevated surfaces)  #1C2238
+  ELECTRUM (gold, subdued)          #B8941F
+  GOLD LEAF (gold, primary)         #D4AF37
+  BRIGHT GOLD (gold, highlight)     #F0D060
+  FAIENCE (turquoise, active state)  #2AADAA
+  TURQUOISE (turquoise, accent)      #5EC8C4
+  PAPYRUS (primary text)            #E8E0CC
+  SAND (secondary text)             #A0967A
+  RED OCHRE (alert / sacred caution) #D4502A
+
+Usage rules for Duat Night:
+
+  Page / screen background:        VOID #0D0E1A
+  Card / sheet surfaces:           LAPIS #141828
+  Elevated cards, modals:          LAPIS RAISED #1C2238
+  Primary body text:               PAPYRUS #E8E0CC
+  Secondary text, dates, metadata: SAND #A0967A
+  Deity names, decan titles:       GOLD LEAF #D4AF37
+  Active navigation item:          FAIENCE #2AADAA with bottom border
+  Inactive navigation:             SAND #A0967A
+  Active transit dot / badge:      GOLD LEAF #D4AF37
+  Sothis / hemerological badge:    TURQUOISE #5EC8C4
+  Sacred caution (specific days):  RED OCHRE #D4502A — see Scheme 3
+  Borders, dividers:               rgba(255,255,255,0.06) — extremely subtle
+  Card bottom bar background:      LAPIS RAISED #1C2238
+  Active decan label:              TURQUOISE #5EC8C4 at 11px, letter-spacing 0.1em
+  Push notification background:    LAPIS RAISED #1C2238
+  Push icon background:            ELECTRUM #B8941F
+  Push title text:                 BRIGHT GOLD #F0D060
+  Push body text:                  SAND #A0967A
+
+
+------------------------------------------------------------------------------
+SCHEME 2: AKHET DAWN (light mode — Temple Library and editorial)
+------------------------------------------------------------------------------
+
+Used for: Temple Library (deity glossary, sacred calendar, Cosmic Climate
+editorial content). Switched to automatically when the user enters the
+Temple Library. Also available as a user preference for the full app.
+
+Inspired by: a freshly plastered tomb wall in morning light. The actual
+color of Egyptian plaster is warm white, not cold white. Warm, material,
+ancient but breathable.
+
+Colors:
+
+  GYPSUM (page background)          #F7F0E3
+  SAND LIGHT (card / surface)       #EDE3D0
+  SAND MID (elevated surface)       #D9CEBA
+  GOLD (primary accent)             #B8941F
+  GOLD DARK (strong gold)           #8B6914
+  KOHL (primary text)               #2A1F0E
+  MALACHITE (active state)          #1B6B68
+  FAIENCE (accent)                  #2AADAA
+  RED OCHRE (alert)                 #C4481A
+  KHOIAK GREEN (growing season)     #4A6B3A
+
+Usage rules for Akhet Dawn:
+
+  Page / screen background:         GYPSUM #F7F0E3
+  Card surfaces:                    SAND LIGHT #EDE3D0
+  Elevated surfaces:                SAND MID #D9CEBA
+  Primary body text:                KOHL #2A1F0E
+  Secondary text, dates, metadata:  GOLD DARK #8B6914
+  Deity names, active elements:     GOLD #B8941F
+  Active navigation:                GOLD #B8941F with bottom border
+  Inactive navigation:              GOLD DARK #8B6914
+  Active / highlighted badge:       MALACHITE #1B6B68
+  Borders, dividers:                rgba(0,0,0,0.06)
+  Card bottom bar:                  SAND MID #D9CEBA
+
+
+------------------------------------------------------------------------------
+SCHEME 3: BLACK LAND (contextual — sacred caution days only)
+------------------------------------------------------------------------------
+
+CRITICAL: This scheme is never the default. It activates automatically
+on specific hemerological dates only. It must never appear on ordinary
+days. Its power comes entirely from its rarity.
+
+Activates on these dates (from engine Section 11.6.1):
+  - July 20: Birth of Set
+  - October 7: Death of Osiris
+  - Eclipse day readings (solar and lunar)
+  - Any day the engine flags as inauspicious in the hemerological table
+
+When active: the reading card switches to this scheme. The rest of the
+app UI remains in Duat Night. Only the reading card and its push
+notification use Black Land colors. The transition should be immediate
+and noticeable — no gradual fade.
+
+Inspired by: carbon black pigment (the actual Egyptian black, made from
+charcoal) with red ochre. The color of inauspicious days in the real
+hemerological papyri was red — scribes literally wrote in red ink on
+bad days.
+
+Colors:
+
+  VOID BLACK (deepest background)   #0A0A0A
+  CHAR (card background)            #141010
+  EMBER (elevated surface)          #1E1410
+  BLOOD (dark red accent)           #8B2010
+  OCHRE RED (primary red)           #C4481A
+  FIRE RED (highlight red)          #E06030
+  GOLD (divine decree)              #D4AF37
+  BRIGHT GOLD (emphasis)            #F0D060
+  PAPYRUS (text)                    #E8E0CC
+  ASH (secondary text)              #888070
+
+Usage rules for Black Land:
+
+  Card background:                  CHAR #141010
+  Card left border accent:          3px solid OCHRE RED #C4481A
+  Card elevated bar:                EMBER #1E1410
+  Decan / day label:                FIRE RED #E06030
+  Primary reading text:             PAPYRUS #E8E0CC
+  Witnessing close text:            ASH #888070
+  Sacred caution badge:             OCHRE RED #C4481A
+  Date text:                        ASH #888070
+  Card border:                      rgba(196,72,26,0.3)
+  Push icon background:             BLOOD #8B2010
+  Push title:                       OCHRE RED #C4481A or BRIGHT GOLD #F0D060
+
+
+------------------------------------------------------------------------------
+SCHEME 4: SEASONAL TINTS (overlays on Duat Night)
+------------------------------------------------------------------------------
+
+Applied as a subtle background tint on season-specific content. Not a
+full mode switch — a color temperature shift that overlays the standard
+Duat Night scheme. Applied to: the Sothis annual reading card, natal
+season descriptions, the hemerological calendar season view, and seasonal
+decan readings.
+
+Tints are applied as a semi-transparent overlay on LAPIS #141828
+cards — do not replace the card background, layer over it at 20-30%
+opacity.
+
+AKHET (Inundation — Cancer through Libra):
+  Tint color:   #1A3A5C (deep Nile blue)
+  Text accent:  #5EC8C4 (turquoise)
+  Label:        "Akhet · The Inundation"
+  Character:    Deep, boundary-dissolving, the gods are close
+
+PERET (Growing season — Scorpio through Aquarius):
+  Tint color:   #2A3A1A (malachite green)
+  Text accent:  #7ABB50 (growth green)
+  Label:        "Peret · The Growing Season"
+  Character:    Deliberate, cultivating, seeds becoming form
+
+SHEMU (Harvest — Pisces through Gemini):
+  Tint color:   #3A2A10 (amber gold)
+  Text accent:  #D4AF37 (harvest gold)
+  Label:        "Shemu · The Harvest"
+  Character:    Completion, reckoning, the anticipation of Sothis
+
+
+==============================================================================
+TYPOGRAPHY
+==============================================================================
+
+Font stack:
+
+  Primary (headings, deity names, decan titles):
+    Georgia, "Times New Roman", serif
+    Used for: all names with divine authority, section headings,
+    reading openings. Georgia has the weight and warmth of carved
+    stone without feeling archaic.
+
+  Body (reading text, descriptions, UI labels):
+    System sans-serif stack: -apple-system, BlinkMacSystemFont,
+    "Segoe UI", Roboto, sans-serif
+    Used for: all reading prose, dates, metadata, navigation labels.
+    Needs to be highly readable at small sizes on mobile.
+
+  Monospace (hieroglyphic symbols only):
+    Used sparingly for Egyptian Unicode characters (𓂀 𓅓 𓇋 𓆣 etc.)
+    when displayed as decorative glyphs. Not for body text.
+
+Sizing scale (mobile-first):
+
+  Decan / day label (small caps feel):  11px, letter-spacing 0.10em,
+                                         font-weight 500, serif
+  Secondary text / metadata:            12px, font-weight 400, sans
+  Push body / card date:                12px, font-weight 400, sans
+  Push title:                           13px, font-weight 500, sans
+  Body reading text:                    14px, font-weight 400, sans,
+                                         line-height 1.65
+  Witnessing close:                     13px, font-weight 400, sans,
+                                         line-height 1.65, secondary color
+  Card / screen headings:               17px, font-weight 500, serif
+  Section headings:                     20px, font-weight 500, serif
+  Screen title:                         22px, font-weight 500, serif
+
+Rules:
+  - Never use font-weight 700 or bold in the reading text. The priestly
+    voice is authority through certainty, not through emphasis.
+  - Deity names and decan titles in the reading body should be in serif
+    and in gold — not bold, just differentiated by font and color.
+  - Line height for all reading prose: 1.65. The text needs room to
+    breathe. Reading on a phone is intimate — do not crowd it.
+  - Letter spacing on small decan labels: 0.10em. This creates the
+    feeling of an inscription without requiring actual hieroglyphs.
+
+
+==============================================================================
+LAYOUT AND SPACING
+==============================================================================
+
+Card structure (the primary reading surface):
+
+  Border radius:          16px (cards feel tactile, not sharp)
+  Padding inside:         20px horizontal, 20px vertical
+  Card top section:       reading content
+  Card bottom bar:        date + status badge, slightly darker background,
+                          separated by a 1px border at rgba(255,255,255,0.06)
+  Card shadow:            none — depth comes from color contrast, not shadow
+  Card border:            1px solid rgba(255,255,255,0.06) in dark mode
+                          1px solid rgba(0,0,0,0.06) in light mode
+
+Bottom navigation:
+
+  5 items: Today / Chart / Ka / Temple / Oracle
+  Height: 56px
+  Active item: accent color (Faience in dark, Gold in light) +
+               2px bottom border in accent color
+  Inactive items: SAND #A0967A
+  Background: matches scheme surface color (LAPIS or GYPSUM)
+  No icons in v1 — text labels only (this is a reading app, not
+  a utility app; icon-only navigation is too ambiguous here)
+  Top border: 1px at rgba(255,255,255,0.06) in dark mode
+
+Screen padding:
+
+  Horizontal page margin:     20px each side
+  Content max-width:          400px, centered on larger screens
+  Space between cards:        16px
+  Space between sections:     32px
+  Space above screen title:   48px (leaves room for status bar)
+
+
+==============================================================================
+THE SKY MAP (Egyptian birth chart visual)
+==============================================================================
+
+The sky map is the most design-intensive screen in the app. It is NOT
+a Western zodiac wheel. The following describes its required visual
+structure.
+
+Overall shape: circular, centered on screen.
+
+Visual layers from outside to inside:
+  1. Outer ring: the 36 decans — small segments, each tappable,
+     labeled with decan number (1–36). Active natal decans
+     highlighted in GOLD LEAF #D4AF37. Others in SAND #A0967A.
+
+  2. Middle ring: the 12 zodiac signs — wider segments with sign
+     glyphs or abbreviated names. Each sign contains 3 decan segments
+     from the outer ring.
+
+  3. Inner ring: the 12 houses — labeled with their Egyptian names
+     (the Akhet, the Granary, etc.) in small serif text.
+
+  4. Center field: the Nut figure — a simplified line illustration of
+     the sky goddess arching across the circle. Stars as small dots
+     in PAPYRUS #E8E0CC at 15-20% opacity, scattered in the center.
+     This is decorative but must be present — it is the mythological
+     container of the chart.
+
+  5. Planetary glyphs: planets placed at their natal degree positions
+     as small Egyptian deity symbols (custom glyphs, not Western
+     planet symbols). Each glyph in GOLD LEAF or TURQUOISE depending
+     on whether it is a natal position or a current transit.
+
+Bottom element: the Nile — a thin sinuous horizontal line in
+FAIENCE #2AADAA at the base of the circle, below the chart,
+representing the earthly ground beneath the sky. Purely visual,
+not functional.
+
+Tapping behavior: tapping any decan, house, or planetary glyph opens
+a bottom sheet with the relevant Temple Library entry. The bottom
+sheet uses the standard card surface color and slides up over the
+chart. Tapping outside dismisses it.
+
+Color in the sky map:
+  Chart circle background:        LAPIS #141828 (same as card surface)
+  Outer ring (decans) fill:       VOID #0D0E1A
+  Decan segment borders:          SAND #A0967A at 20% opacity
+  Active (natal) decan:           GOLD LEAF #D4AF37 fill
+  Active (natal) planet glyph:    GOLD LEAF #D4AF37
+  Current transit glyph:          TURQUOISE #5EC8C4
+  House divider lines:            SAND #A0967A at 15% opacity
+  House labels:                   SAND #A0967A, 10px serif
+  Nut illustration lines:         PAPYRUS #E8E0CC at 20% opacity
+  Nile line:                      FAIENCE #2AADAA at 40% opacity
+
+
+==============================================================================
+STATUS BADGES AND LABELS
+==============================================================================
+
+Transit badges (shown on reading card bottom bar):
+
+  Active natal decan:   gold dot + "Natal decan" in GOLD LEAF
+  Active transit:       gold dot + "Active transit" in GOLD LEAF
+  Sothis decan:         turquoise dot + "Sothis decan" in TURQUOISE
+  Retrograde active:    sand dot + "Thoth withdrawn" or "[Planet] Rx"
+                        in SAND — retrogrades are not alarming
+  Sacred caution:       red dot + "Sacred caution" in OCHRE RED
+                        (only on hemerological inauspicious days)
+  Eclipse active:       red dot + "Apep strikes" in OCHRE RED
+
+Dot size: 6px diameter, border-radius 50%.
+Badge text: 11px, font-weight 500, letter-spacing 0.03em.
+Badge layout: dot + text, aligned center, right-justified in card
+bottom bar.
+
+
+==============================================================================
+ICONOGRAPHY AND GLYPHS
+==============================================================================
+
+Egyptian Unicode characters available for use as decorative glyphs:
+
+  𓂀  (Eye of Horus) — used as app icon/logo mark, section dividers
+  𓅓  (Falcon) — Horus, Ra, sky, daily reading
+  𓇋  (Reed) — Thoth, writing, Oracle Chamber
+  𓆣  (Scarab) — Khepri, becoming, transformation
+  𓏏  (Bread loaf) — offering, the giving force
+  𓂋  (Arm) — action, reach, the practical call
+  𓁹  (Eye) — seeing, awareness, the witnessing close
+  𓇳  (Sun disk) — Ra, vital force, solar reading
+
+These glyphs are used:
+  - As section identifiers in the Temple Library
+  - As small decorative elements in reading cards (leading the decan
+    label line)
+  - As the app icon base (Eye of Horus, stylized)
+
+Rules:
+  - Never use these glyphs as navigation icons — they are too
+    ambiguous for functional UI
+  - Always render in the same color as the text they accompany
+  - Size: 14-16px when inline with text, 24-32px when decorative
+  - Do not use more than one glyph per card surface
+
+
+==============================================================================
+ANIMATION AND MOTION
+==============================================================================
+
+Philosophy: the app should feel like stone and water, not glass and
+chrome. Transitions are deliberate and unhurried. Nothing bounces.
+Nothing springs. The pace is the pace of a temple interior.
+
+Permitted transitions:
+
+  Screen transitions:    fade, 280ms, ease-in-out
+  Card appearance:       fade up from 8px below, 320ms, ease-out
+  Bottom sheet entry:    slide up, 300ms, cubic-bezier(0.2, 0, 0, 1)
+  Bottom sheet dismiss:  slide down, 240ms, ease-in
+  Active state change:   color crossfade, 180ms, ease
+  Badge pulse (eclipse): single slow pulse, 2s, ease-in-out, plays once
+
+Forbidden:
+  - Spring animations (no bouncing, no overshoot)
+  - Parallax scrolling
+  - Particle effects (no stars "falling" in the sky map)
+  - Auto-playing loops on the main reading screen
+  - Haptic feedback on reading delivery — reading arrival is silent
+
+The sky map may rotate slowly and continuously (the diurnal cycle of
+the heavens) at a rate of approximately one full rotation per 24 hours,
+anchored to real sidereal time. This rotation is extremely subtle — the
+user should feel the sky is alive, not that the screen is spinning.
+Rotation speed: imperceptible in 30 seconds, visible over 5 minutes.
+This is optional — implement only if performance allows without
+battery impact.
+
+
+==============================================================================
+READING TEXT DISPLAY
+==============================================================================
+
+The reading is the product. How it is displayed matters as much as what
+it says. These rules govern reading text rendering specifically.
+
+  Display as flowing prose, no headers, no bullet points.
+  Paragraph breaks: a full blank line between registers
+    (decree, mirror, call, witnessing close).
+  The witnessing close: rendered in SAND secondary color (not PAPYRUS
+    primary), same size, no italic. Differentiated by color only —
+    not by style or size. The shift in color is the only signal that
+    this is a different register of voice.
+  Deity names in the reading body: rendered in GOLD LEAF serif, not
+    bold. The name of the active deity is the only thing in gold in
+    the body text.
+  Do not animate the text in (no typewriter effect, no character-by-
+    character reveal). The reading appears fully formed, instantly.
+    The priestly voice does not type. It decrees.
+  Maximum width: 360px on mobile, centered. Reading text should never
+    stretch full screen width — line length affects rhythm.
+
+Push notification display:
+
+  Icon: app icon (Eye of Horus) on ELECTRUM background
+  Title: BRIGHT GOLD #F0D060, 13px, font-weight 500
+  Body: SAND #A0967A, 12px, font-weight 400
+  On sacred caution days: title in OCHRE RED #C4481A instead
+
+
+==============================================================================
+WHAT THIS APP SHOULD NOT LOOK LIKE
+==============================================================================
+
+These are anti-patterns. If any screen is moving toward these, reconsider.
+
+  NOT mystical purple / dark purple gradients:
+    Purple is not Egyptian. It reads as generic "spiritual app" or
+    generic "astrology app." Every competitor uses purple. We do not.
+
+  NOT gold everything:
+    Gold as a highlight means something. Gold on every surface means
+    nothing. If gold is everywhere, the hierarchy collapses.
+
+  NOT constellation backgrounds:
+    A starfield background is the first thing every astrology app does.
+    We do not. The sky is depicted in the sky map, which is functional.
+    The reading card background is solid LAPIS — the inside of a tomb,
+    not the outside of a planetarium.
+
+  NOT rounded pill buttons in gold:
+    Pill-shaped call-to-action buttons in gold look like a luxury
+    skincare app. Primary actions should use text with the gold color,
+    or a contained button with subtle border — not filled gold pills.
+
+  NOT hieroglyphic borders everywhere:
+    A single hieroglyphic glyph at the start of a section is powerful.
+    A hieroglyphic border running around every card is a theme park.
+    Restraint is the rule.
+
+  NOT light teal or mint as the primary color:
+    Turquoise/faience is an accent and an active state indicator.
+    It is not the brand color. The brand color (if one must be named)
+    is the dark lapis of Duat Night — deep, contained, deliberate.
+
+
+==============================================================================
+SUMMARY: COLOR VALUES QUICK REFERENCE
+==============================================================================
+
+Duat Night (dark — default):
+  #0D0E1A  Void / page background
+  #141828  Lapis / card surface
+  #1C2238  Lapis Raised / elevated surface
+  #B8941F  Electrum / subdued gold
+  #D4AF37  Gold Leaf / primary gold (deity names, active elements)
+  #F0D060  Bright Gold / highlight
+  #2AADAA  Faience / active state, Sothis, turquoise
+  #5EC8C4  Turquoise / accent
+  #E8E0CC  Papyrus / primary text
+  #A0967A  Sand / secondary text
+  #D4502A  Red Ochre / alert
+
+Akhet Dawn (light — Temple Library):
+  #F7F0E3  Gypsum / page background
+  #EDE3D0  Sand Light / card surface
+  #D9CEBA  Sand Mid / elevated surface
+  #B8941F  Gold / primary accent
+  #8B6914  Gold Dark / secondary text
+  #2A1F0E  Kohl / primary text
+  #1B6B68  Malachite / active state
+  #2AADAA  Faience / accent
+  #C4481A  Red Ochre Light / alert
+  #4A6B3A  Khoiak Green / growing season
+
+Black Land (contextual — sacred caution days):
+  #0A0A0A  Void Black
+  #141010  Char / card
+  #1E1410  Ember / elevated
+  #8B2010  Blood / dark red
+  #C4481A  Ochre Red / primary
+  #E06030  Fire Red / highlight
+  #D4AF37  Gold / decree
+  #F0D060  Bright Gold
+  #E8E0CC  Papyrus / text
+  #888070  Ash / secondary text
+
+Seasonal tints (overlays at 20-30% opacity on Duat Night):
+  Akhet:  #1A3A5C (Nile blue)
+  Peret:  #2A3A1A (malachite green)
+  Shemu:  #3A2A10 (harvest amber)
+
+
+==============================================================================
+END OF DESIGN SPECIFICATION
+==============================================================================
